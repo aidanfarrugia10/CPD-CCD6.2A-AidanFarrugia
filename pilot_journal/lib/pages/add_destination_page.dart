@@ -6,5 +6,12 @@ class AddDestinationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
+      appBar: AppBar(
+        title: const Text('Add Destination'),
+      ),
+      body: const Center(
+        child: Text('Form Placement'),
+      ),
+    );
+  }
 }
