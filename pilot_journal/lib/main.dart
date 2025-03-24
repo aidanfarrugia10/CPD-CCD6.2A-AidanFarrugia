@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'pages/home_page.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const PilotDestinationTrackerApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class PilotDestinationTrackerApp extends StatelessWidget {
+  const PilotDestinationTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      title: 'Pilot Destination Tracker',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
     );
   }
 }
