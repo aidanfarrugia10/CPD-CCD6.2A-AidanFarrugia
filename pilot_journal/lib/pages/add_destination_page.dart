@@ -1,6 +1,5 @@
-// lib/pages/add_destination_page.dart
 import 'package:flutter/material.dart';
-import 'package:pilot_journal/main.dart';
+import '../main.dart';
 
 class AddDestinationPage extends StatefulWidget {
   const AddDestinationPage({super.key});
@@ -19,30 +18,22 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
       final newDestination = Destination(
         title: _titleController.text,
         description: _descriptionController.text,
+        latitude: null,
+        longitude: null,
       );
       Navigator.pop(context, newDestination);
     }
   }
 
   @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Destination'),
-      ),
-      body: SingleChildScrollView(
+      appBar: AppBar(title: const Text('Add Destination')),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _titleController,

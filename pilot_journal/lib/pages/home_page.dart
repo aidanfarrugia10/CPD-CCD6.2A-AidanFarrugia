@@ -1,4 +1,3 @@
-// lib/pages/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:pilot_journal/main.dart';
 import 'add_destination_page.dart';
@@ -45,7 +44,9 @@ class _HomePageState extends State<HomePage> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
                     title: Text(dest.title),
-                    subtitle: Text(dest.description),
+                    subtitle: Text(
+                      '${dest.description}\n${dest.latitude != null ? 'Lat: ${dest.latitude}, Long: ${dest.longitude}' : ''}',
+                    ),
                     leading: const Icon(Icons.flight_takeoff),
                   ),
                 );
