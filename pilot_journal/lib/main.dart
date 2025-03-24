@@ -1,3 +1,4 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'pages/home_page.dart';
 
@@ -20,4 +21,11 @@ class PilotDestinationTrackerApp extends StatelessWidget {
       home: const HomePage(),
     );
   }
+}
+
+class Destination {
+  final String title;
+  final String description;
+
+  Destination({required this.title, required this.description});
 }
