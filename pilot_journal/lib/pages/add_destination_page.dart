@@ -15,12 +15,50 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   Position? _currentPosition;
+  bool _isLocating = false;
 
-  void _getCurrentLocation() {
-    Geolocator.getCurrentPosition();
-    setState(() {
-      _currentPosition = _currentPosition;
-    });
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLocating = true);
+
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() => _isLocating = false);
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() => _isLocating = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permission denied.')),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() => _isLocating = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Location permissions are permanently denied.')),
+      );
+      return;
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      setState(() {
+        _currentPosition = position;
+        _isLocating = false;
+      });
+    } catch (e) {
+      setState(() => _isLocating = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to get location: $e')),
+      );
+    }
   }
 
   void _handleSubmit() {
@@ -36,14 +74,23 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
   }
 
   @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final locationDisplay = _currentPosition == null
         ? 'Location not fetched yet.'
         : 'Lat: ${_currentPosition!.latitude}, Long: ${_currentPosition!.longitude}';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Destination')),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('Add Destination'),
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -56,8 +103,9 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
                   labelText: 'Destination Title',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Enter a title' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a title'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -67,16 +115,18 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Enter a description'
+                    ? 'Please enter a description'
                     : null,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _getCurrentLocation,
-                child: const Text('Get Current Location'),
+                onPressed: _isLocating ? null : _getCurrentLocation,
+                child: _isLocating
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Get Current Location'),
               ),
               const SizedBox(height: 8),
-              Text(locationDisplay),
+              Text(locationDisplay, style: const TextStyle(fontSize: 14)),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _handleSubmit,
