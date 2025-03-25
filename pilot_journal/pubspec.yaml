@@ -9,7 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  geolocator: ^10.1.0
+  geolocator: ^10.1.1
+  firebase_core: ^2.27.0
+  firebase_database: ^10.4.5
 
 dev_dependencies:
   flutter_test:

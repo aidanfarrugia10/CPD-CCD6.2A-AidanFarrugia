@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "427998652083",
+    "project_id": "pilotjournal-bacde",
+    "storage_bucket": "pilotjournal-bacde.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427998652083:android:2f191ab305ec1ac3d132c6",
+        "android_client_info": {
+          "package_name": "com.example.pilot_journal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkF2A6wDuCAElIoDHvoNyu-3w2iD0GrTk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

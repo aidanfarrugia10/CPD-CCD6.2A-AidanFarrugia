@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../main.dart';
@@ -16,6 +17,8 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
 
   Position? _currentPosition;
   bool _isLocating = false;
+  final DatabaseReference _dbRef =
+      FirebaseDatabase.instance.reference().child('destinations');
 
   Future<void> _getCurrentLocation() async {
     setState(() => _isLocating = true);
@@ -69,6 +72,14 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
         latitude: _currentPosition?.latitude,
         longitude: _currentPosition?.longitude,
       );
+
+      _dbRef.push().set({
+        'title': newDestination.title,
+        'description': newDestination.description,
+        'latitude': newDestination.latitude,
+        'longitude': newDestination.longitude,
+      });
+
       Navigator.pop(context, newDestination);
     }
   }
