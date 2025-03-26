@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../main.dart';
+import '../services/notifications_service.dart';
 
 class AddDestinationPage extends StatefulWidget {
   const AddDestinationPage({super.key});
@@ -13,71 +14,62 @@ class AddDestinationPage extends StatefulWidget {
 class _AddDestinationPageState extends State<AddDestinationPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _airportNameController = TextEditingController();
+  final DatabaseReference _dbRef =
+      FirebaseDatabase.instance.ref().child('destinations');
 
   Position? _currentPosition;
   bool _isLocating = false;
-  final DatabaseReference _dbRef =
-      FirebaseDatabase.instance.reference().child('destinations');
 
   Future<void> _getCurrentLocation() async {
     setState(() => _isLocating = true);
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       setState(() => _isLocating = false);
       return;
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         setState(() => _isLocating = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied.')),
-        );
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       setState(() => _isLocating = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Location permissions are permanently denied.')),
-      );
       return;
     }
 
-    try {
-      final position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _currentPosition = position;
-        _isLocating = false;
-      });
-    } catch (e) {
-      setState(() => _isLocating = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to get location: $e')),
-      );
-    }
+    final position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _currentPosition = position;
+      _isLocating = false;
+    });
   }
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       final newDestination = Destination(
         title: _titleController.text,
-        description: _descriptionController.text,
+        airportName: _airportNameController.text,
         latitude: _currentPosition?.latitude,
         longitude: _currentPosition?.longitude,
       );
 
       _dbRef.push().set({
         'title': newDestination.title,
-        'description': newDestination.description,
+        'airportName': newDestination.airportName,
         'latitude': newDestination.latitude,
         'longitude': newDestination.longitude,
+      }).then((_) {
+        NotificationService.show(
+          'Destination Added',
+          '“${newDestination.title}” saved successfully',
+        );
       });
 
       Navigator.pop(context, newDestination);
@@ -87,7 +79,7 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
   @override
   void dispose() {
     _titleController.dispose();
-    _descriptionController.dispose();
+    _airportNameController.dispose();
     super.dispose();
   }
 
@@ -98,47 +90,35 @@ class _AddDestinationPageState extends State<AddDestinationPage> {
         : 'Lat: ${_currentPosition!.latitude}, Long: ${_currentPosition!.longitude}';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Destination'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('Add Destination')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Destination Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a title'
-                    : null,
+                decoration:
+                    const InputDecoration(labelText: 'Destination Title'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a description'
-                    : null,
+                controller: _airportNameController,
+                decoration: const InputDecoration(labelText: 'Airport Name'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _isLocating ? null : _getCurrentLocation,
-                child: _isLocating
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Get Current Location'),
+                child: Text(_isLocating ? 'Locating...' : 'Get Location'),
               ),
               const SizedBox(height: 8),
-              Text(locationDisplay, style: const TextStyle(fontSize: 14)),
-              const SizedBox(height: 32),
+              Text(locationDisplay),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _handleSubmit,
                 child: const Text('Save Destination'),

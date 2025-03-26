@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pages/home_page.dart';
+import 'services/notifications_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ void main() async {
           "https://pilotjournal-bacde-default-rtdb.europe-west1.firebasedatabase.app",
     ),
   );
+  await NotificationService.init();
   runApp(const PilotDestinationTrackerApp());
 }
 
@@ -39,13 +41,13 @@ class PilotDestinationTrackerApp extends StatelessWidget {
 // Destination object
 class Destination {
   final String title;
-  final String description;
+  final String airportName;
   final double? latitude;
   final double? longitude;
 
   Destination({
     required this.title,
-    required this.description,
+    required this.airportName,
     this.latitude,
     this.longitude,
   });

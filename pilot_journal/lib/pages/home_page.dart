@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
           loaded.add(
             Destination(
               title: map['title'] ?? '',
-              description: map['description'] ?? '',
+              airportName: map['airportName'] ?? '',
               latitude: map['latitude']?.toDouble(),
               longitude: map['longitude']?.toDouble(),
             ),
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
                     title: Text(dest.title),
-                    subtitle: Text('${dest.description}$location'),
+                    subtitle: Text('${dest.airportName}$location'),
                     leading: const Icon(Icons.flight_takeoff),
                   ),
                 );
